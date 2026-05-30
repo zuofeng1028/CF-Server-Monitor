@@ -1,3 +1,6 @@
+# 测试目录
+test/mock-data.sql
+
 # 依赖
 node_modules/
 package-lock.json
