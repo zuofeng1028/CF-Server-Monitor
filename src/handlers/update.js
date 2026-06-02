@@ -1,5 +1,4 @@
 import { saveMetricsHistory } from '../database/schema.js';
-import { checkOfflineNodes } from '../services/notification.js';
 
 const serverExistenceCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
@@ -41,8 +40,6 @@ export async function handleUpdate(request, env, ctx) {
     }
 
     await saveMetricsHistory(env.DB, id, metrics, countryCode);
-
-    ctx.waitUntil(checkOfflineNodes(env.DB));
 
     return new Response('OK', { status: 200 });
   } catch (e) {

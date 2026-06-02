@@ -1,4 +1,5 @@
 import { initDatabase, cleanupOldData, getMetricsHistory, getAggregatedHistory } from './database/schema.js';
+import { checkOfflineNodes } from './services/notification.js';
 import { updateDatabase, cleanupStaleSettings } from './database/updateDatabase.js';
 import { handleAdminAPI } from './handlers/admin.js';
 import { serveFrontend } from './handlers/frontend.js';
@@ -198,9 +199,18 @@ export default {
   async scheduled(event, env, ctx) {
     await initDatabase(env.DB);
     
-    console.log('[Cron] 开始执行定时清理任务');
-    const enableLongRetention = env.LONG_RETENTION === 'true';
-    await cleanupOldData(env.DB, enableLongRetention);
-    console.log('[Cron] 定时清理任务完成');
+    const cron = event.cron;
+    console.log(`[Cron] 定时任务触发: ${cron}`);
+    
+    if (cron === '10 * * * *') {
+      console.log('[Cron] 开始执行定时清理任务');
+      const enableLongRetention = env.LONG_RETENTION === 'true';
+      await cleanupOldData(env.DB, enableLongRetention);
+      console.log('[Cron] 定时清理任务完成');
+    } else if (cron === '*/1 * * * *') {
+      console.log('[Cron] 开始执行离线节点检测');
+      await checkOfflineNodes(env.DB);
+      console.log('[Cron] 离线节点检测完成');
+    }
   }
 };
