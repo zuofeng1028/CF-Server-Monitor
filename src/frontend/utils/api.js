@@ -130,6 +130,7 @@ export const fetchAllHistory = async (id, hours) => {
     const error = new Error(result.error)
     error.code = result.code
     error.status = result.status
+    error.message = result.message || result.error
     throw error
   }
   return result.data
